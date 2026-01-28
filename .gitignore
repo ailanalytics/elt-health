@@ -1,0 +1,14 @@
+# Local test data
+data/
+
+# Logs
+logs/
+*.log
+
+# Python
+__pycache__/
+.venv/
+.env
+
+# VSCode
+.vscode/ 
