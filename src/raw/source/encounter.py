@@ -23,4 +23,4 @@ def generate_encounter_event(ts, patient_id, gender, encounter_type, department,
         "source_system": "ehr",
     }
 
-    print(event)
+    # print(event)

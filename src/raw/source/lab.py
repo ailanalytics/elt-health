@@ -7,12 +7,11 @@ import json
 import copy
 import random
 from utils import *
+from constants import LAB_TEST_PATH
 
 # --------------------------------------------------
 # Define Variables
 # --------------------------------------------------
-
-LAB_TEST_PATH = "src/raw/source/lab_tests.json"
 
 with open(LAB_TEST_PATH, "r", encoding="utf-8") as f:
     lab_tests = json.load(f)
@@ -46,7 +45,7 @@ def generate_lab_result_event(ts, gender, patient_id, department):
         "source_system": "lab",
     }
 
-    print(event)
+    # print(event)
 
 if __name__ == "__main__":
     results = generate_lab_result_event("male", 10000)

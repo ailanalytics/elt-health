@@ -1,17 +1,6 @@
 
 import random
 
-DEPARTMENT_CONFIG = [
-    {"name": "ward1",   "beds": 20, "min": 1, "max": 30},
-    {"name": "ward2",   "beds": 20, "min": 1, "max": 30},
-    {"name": "ward3",   "beds": 10, "min": 1, "max": 30},
-    {"name": "ward4",   "beds": 32, "min": 1, "max": 30},
-    {"name": "ward5",   "beds": 18, "min": 1, "max": 30},
-    {"name": "ward6",   "beds": 24, "min": 1, "max": 30},
-]
-
-    # 124 Beds
-
 class Department:
 
     def __init__(
@@ -29,6 +18,9 @@ class Department:
         self.stay_max = stay_max
 
     # ---------- Bed state ----------
+
+    def get_beds_occupied(self):
+        return self.beds_occupied
 
     def has_capacity(self) -> bool:
         return self.beds_occupied <= self.beds_total
@@ -51,7 +43,7 @@ class Department:
         if r <= 0.9:
             days = random.randint(self.stay_min, self.stay_max)
         # 8% long stays
-        elif r > 0.9 and r < 0.98:
+        elif r > 0.9 and r < 0.99:
             days = random.randint(15, 30)
         # 2% bed blockers
         else:

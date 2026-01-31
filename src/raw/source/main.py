@@ -5,7 +5,7 @@ Writes json to local dev data folder
 import admission as adm
 
 # --------------------------------------------------
-# Define Variables
+# Entry Point
 # --------------------------------------------------
 
 def main():

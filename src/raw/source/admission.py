@@ -7,12 +7,13 @@ import numpy as np
 import random
 import encounter as enc
 import lab
+from department import Department
 from collections import deque
 from utils import *
 from datetime import timedelta
 from utils import *
 from patients import PatientRegistry
-from department import Department, DEPARTMENT_CONFIG
+from constants import PRESSURE_MULTIPLIER, DAILY_ADMISSION_BASELINE, PATIENT_REGISTRY_MAX, DEPARTMENT_CONFIG
 
 class WaitingList:
     def __init__(self):
@@ -23,9 +24,16 @@ class WaitingList:
             "patient": patient,
             "request_date": request_date
         })
+        print(len(self.queue))
 
     def has_waiting(self) -> bool:
         return len(self.queue) > 0
+    
+    def has_patient(self, patient) -> bool:
+        return any(
+            entry["patient"] == patient
+            for entry in self.queue
+        )
 
     def peek(self):
         return self.queue[0]
@@ -36,27 +44,13 @@ class WaitingList:
     def __len__(self):
         return len(self.queue)
 
-PRESSURE_MULTIPLIER = { # By month 1 = Jan
-    1: 1.25,
-    2: 1.20,
-    3: 1.10,
-    4: 1.05,
-    5: 0.95,
-    6: 0.90,
-    7: 0.90,
-    8: 0.92,
-    9: 1.00,
-    10: 1.05,
-    11: 1.15,
-    12: 1.20,
-}
-
 def process_discharges(active_admissions, current_date):
 
     remaining = []
 
     for entry in active_admissions:
-        if entry["discharge_date"] <= current_date:
+        discharge_date = entry["discharge_date"]
+        if discharge_date is not None and discharge_date <= current_date:
             # discharge happens
             entry["department"].discharge()
         else:
@@ -64,7 +58,7 @@ def process_discharges(active_admissions, current_date):
 
     return remaining
 
-def admissions_for_day(date, baseline=20):
+def admissions_for_day(date, baseline=DAILY_ADMISSION_BASELINE):
 
     month = date.month
     multiplier = PRESSURE_MULTIPLIER[month]
@@ -75,7 +69,7 @@ def admissions_for_day(date, baseline=20):
 
 def generate_admissions():
 
-    registry = PatientRegistry(range(10000, 10100))
+    registry = PatientRegistry(range(10000, PATIENT_REGISTRY_MAX))
     waitinglist = WaitingList()
     active_admissions = []
 
@@ -89,8 +83,8 @@ def generate_admissions():
         for d in DEPARTMENT_CONFIG
     }
 
-    start = date(2024, 1, 28)
-    end = date(2024, 1, 28)
+    start = date(2025, 1, 28)
+    end = date(2026, 1, 28)
 
     current_date = start
 
@@ -113,6 +107,7 @@ def generate_admissions():
                 request_date = current_date
 
             if not patient:
+                print("no patients")
                 break  # no eligible patients today
 
             # Check capacity
@@ -125,6 +120,7 @@ def generate_admissions():
                 # No beds → backlog
                 if not waitinglist.has_patient(patient):
                     waitinglist.add(patient, current_date)
+                # print("No beds")
                 break  # stop trying today
 
             # Admit patient
@@ -170,6 +166,8 @@ def generate_admissions():
 
             created_admissions += 1
 
+            print(current_date)
+
             # Generate events
             enc.generate_encounter_event(
                 admit_ts.isoformat(), 
@@ -196,3 +194,6 @@ def generate_admissions():
             )
 
         current_date += timedelta(days=1)
+
+    # for entry in departments.values():
+    #     print(entry.get_beds_occupied())
