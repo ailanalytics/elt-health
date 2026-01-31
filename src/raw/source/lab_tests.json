@@ -3,7 +3,9 @@
   "notes": [
     "Reference ranges vary slightly by laboratory, analyser, age, and sex",
     "Values are for adults unless otherwise specified",
-    "Clinical context always overrides numerical ranges"
+    "Clinical context always overrides numerical ranges",
+    "`range` represents the normal adult reference range",
+    "`test_range` defines bounds for synthetic data generation"
   ],
   "data": {
     "full_blood_count": [
@@ -14,19 +16,22 @@
         "range": {
           "male": { "low": 130, "high": 180 },
           "female": { "low": 115, "high": 165 }
-        }
+        },
+        "test_range": { "low": 70, "high": 220 }
       },
       {
         "test_code": "WBC",
         "test_name": "White Blood Cell Count",
         "units": "x10^9/L",
-        "range": { "low": 4.0, "high": 11.0 }
+        "range": { "low": 4.0, "high": 11.0 },
+        "test_range": { "low": 1.0, "high": 50.0 }
       },
       {
         "test_code": "PLT",
         "test_name": "Platelet Count",
         "units": "x10^9/L",
-        "range": { "low": 150, "high": 400 }
+        "range": { "low": 150, "high": 400 },
+        "test_range": { "low": 20, "high": 1000 }
       },
       {
         "test_code": "RBC",
@@ -35,7 +40,8 @@
         "range": {
           "male": { "low": 4.5, "high": 6.5 },
           "female": { "low": 3.8, "high": 5.8 }
-        }
+        },
+        "test_range": { "low": 2.0, "high": 8.0 }
       },
       {
         "test_code": "HCT",
@@ -44,25 +50,29 @@
         "range": {
           "male": { "low": 0.40, "high": 0.54 },
           "female": { "low": 0.36, "high": 0.47 }
-        }
+        },
+        "test_range": { "low": 0.20, "high": 0.65 }
       },
       {
         "test_code": "MCV",
         "test_name": "Mean Corpuscular Volume",
         "units": "fL",
-        "range": { "low": 80, "high": 100 }
+        "range": { "low": 80, "high": 100 },
+        "test_range": { "low": 60, "high": 120 }
       },
       {
         "test_code": "MCH",
         "test_name": "Mean Corpuscular Haemoglobin",
         "units": "pg",
-        "range": { "low": 27, "high": 33 }
+        "range": { "low": 27, "high": 33 },
+        "test_range": { "low": 18, "high": 40 }
       },
       {
         "test_code": "MCHC",
         "test_name": "Mean Corpuscular Haemoglobin Concentration",
         "units": "g/L",
-        "range": { "low": 320, "high": 360 }
+        "range": { "low": 320, "high": 360 },
+        "test_range": { "low": 280, "high": 380 }
       }
     ],
 
@@ -71,7 +81,8 @@
         "test_code": "UREA",
         "test_name": "Urea",
         "units": "mmol/L",
-        "range": { "low": 2.5, "high": 7.8 }
+        "range": { "low": 2.5, "high": 7.8 },
+        "test_range": { "low": 1.0, "high": 40.0 }
       },
       {
         "test_code": "CREAT",
@@ -80,13 +91,15 @@
         "range": {
           "male": { "low": 64, "high": 104 },
           "female": { "low": 49, "high": 90 }
-        }
+        },
+        "test_range": { "low": 30, "high": 900 }
       },
       {
         "test_code": "EGFR",
         "test_name": "Estimated Glomerular Filtration Rate",
         "units": "mL/min/1.73m2",
-        "range": { "low": 90, "high": null }
+        "range": { "low": 90, "high": 120 },
+        "test_range": { "low": 0, "high": 130 }
       }
     ],
 
@@ -95,25 +108,29 @@
         "test_code": "NA",
         "test_name": "Sodium",
         "units": "mmol/L",
-        "range": { "low": 135, "high": 145 }
+        "range": { "low": 135, "high": 145 },
+        "test_range": { "low": 110, "high": 165 }
       },
       {
         "test_code": "K",
         "test_name": "Potassium",
         "units": "mmol/L",
-        "range": { "low": 3.5, "high": 5.0 }
+        "range": { "low": 3.5, "high": 5.0 },
+        "test_range": { "low": 2.0, "high": 7.5 }
       },
       {
         "test_code": "CL",
         "test_name": "Chloride",
         "units": "mmol/L",
-        "range": { "low": 95, "high": 105 }
+        "range": { "low": 95, "high": 105 },
+        "test_range": { "low": 80, "high": 120 }
       },
       {
         "test_code": "HCO3",
         "test_name": "Bicarbonate",
         "units": "mmol/L",
-        "range": { "low": 22, "high": 29 }
+        "range": { "low": 22, "high": 29 },
+        "test_range": { "low": 10, "high": 45 }
       }
     ],
 
@@ -122,37 +139,43 @@
         "test_code": "ALT",
         "test_name": "Alanine Aminotransferase",
         "units": "U/L",
-        "range": { "low": 10, "high": 50 }
+        "range": { "low": 10, "high": 50 },
+        "test_range": { "low": 5, "high": 1000 }
       },
       {
         "test_code": "AST",
         "test_name": "Aspartate Aminotransferase",
         "units": "U/L",
-        "range": { "low": 10, "high": 40 }
+        "range": { "low": 10, "high": 40 },
+        "test_range": { "low": 5, "high": 1000 }
       },
       {
         "test_code": "ALP",
         "test_name": "Alkaline Phosphatase",
         "units": "U/L",
-        "range": { "low": 30, "high": 130 }
+        "range": { "low": 30, "high": 130 },
+        "test_range": { "low": 20, "high": 1000 }
       },
       {
         "test_code": "BILI",
         "test_name": "Bilirubin",
         "units": "µmol/L",
-        "range": { "low": 3, "high": 21 }
+        "range": { "low": 3, "high": 21 },
+        "test_range": { "low": 1, "high": 500 }
       },
       {
         "test_code": "ALB",
         "test_name": "Albumin",
         "units": "g/L",
-        "range": { "low": 35, "high": 50 }
+        "range": { "low": 35, "high": 50 },
+        "test_range": { "low": 15, "high": 55 }
       },
       {
         "test_code": "TP",
         "test_name": "Total Protein",
         "units": "g/L",
-        "range": { "low": 60, "high": 80 }
+        "range": { "low": 60, "high": 80 },
+        "test_range": { "low": 40, "high": 95 }
       }
     ],
 
@@ -161,13 +184,15 @@
         "test_code": "GLU_FAST",
         "test_name": "Fasting Glucose",
         "units": "mmol/L",
-        "range": { "low": 3.9, "high": 5.5 }
+        "range": { "low": 3.9, "high": 5.5 },
+        "test_range": { "low": 2.0, "high": 25.0 }
       },
       {
         "test_code": "HBA1C",
         "test_name": "HbA1c",
         "units": "mmol/mol",
-        "range": { "low": null, "high": 41 }
+        "range": { "low": 20, "high": 41 },
+        "test_range": { "low": 15, "high": 150 }
       }
     ],
 
@@ -176,7 +201,8 @@
         "test_code": "CRP",
         "test_name": "C-Reactive Protein",
         "units": "mg/L",
-        "range": { "low": 0, "high": 5 }
+        "range": { "low": 0, "high": 5 },
+        "test_range": { "low": 0, "high": 300 }
       },
       {
         "test_code": "ESR",
@@ -185,7 +211,8 @@
         "range": {
           "male": { "low": 0, "high": 15 },
           "female": { "low": 0, "high": 20 }
-        }
+        },
+        "test_range": { "low": 0, "high": 120 }
       }
     ],
 
@@ -194,25 +221,29 @@
         "test_code": "CA",
         "test_name": "Adjusted Calcium",
         "units": "mmol/L",
-        "range": { "low": 2.20, "high": 2.60 }
+        "range": { "low": 2.20, "high": 2.60 },
+        "test_range": { "low": 1.5, "high": 3.5 }
       },
       {
         "test_code": "PHOS",
         "test_name": "Phosphate",
         "units": "mmol/L",
-        "range": { "low": 0.8, "high": 1.5 }
+        "range": { "low": 0.8, "high": 1.5 },
+        "test_range": { "low": 0.3, "high": 3.0 }
       },
       {
         "test_code": "MG",
         "test_name": "Magnesium",
         "units": "mmol/L",
-        "range": { "low": 0.7, "high": 1.0 }
+        "range": { "low": 0.7, "high": 1.0 },
+        "test_range": { "low": 0.3, "high": 2.5 }
       },
       {
         "test_code": "VITD",
         "test_name": "Vitamin D (25-OH)",
         "units": "nmol/L",
-        "range": { "low": 50, "high": null }
+        "range": { "low": 25, "high": 75 },
+        "test_range": { "low": 5, "high": 250 }
       }
     ],
 
@@ -221,28 +252,32 @@
         "test_code": "CHOL",
         "test_name": "Total Cholesterol",
         "units": "mmol/L",
-        "range": { "low": null, "high": 5.0 }
+        "range": { "low": 0.0, "high": 5.0 },
+        "test_range": { "low": 2.0, "high": 10.0 }
       },
       {
         "test_code": "LDL",
         "test_name": "LDL Cholesterol",
         "units": "mmol/L",
-        "range": { "low": null, "high": 3.0 }
+        "range": { "low": 0.0, "high": 3.0 },
+        "test_range": { "low": 1.0, "high": 8.0 }
       },
       {
         "test_code": "HDL",
         "test_name": "HDL Cholesterol",
         "units": "mmol/L",
         "range": {
-          "male": { "low": 1.0, "high": null },
-          "female": { "low": 1.2, "high": null }
-        }
+          "male": { "low": 1.0, "high": 2.0 },
+          "female": { "low": 1.2, "high": 2.3 }
+        },
+        "test_range": { "low": 0.3, "high": 3.5 }
       },
       {
         "test_code": "TRIG",
         "test_name": "Triglycerides",
         "units": "mmol/L",
-        "range": { "low": null, "high": 1.7 }
+        "range": { "low": 0.0, "high": 1.7 },
+        "test_range": { "low": 0.4, "high": 10.0 }
       }
     ],
 
@@ -251,19 +286,22 @@
         "test_code": "TSH",
         "test_name": "Thyroid Stimulating Hormone",
         "units": "mIU/L",
-        "range": { "low": 0.4, "high": 4.0 }
+        "range": { "low": 0.4, "high": 4.0 },
+        "test_range": { "low": 0.01, "high": 100 }
       },
       {
         "test_code": "FT4",
         "test_name": "Free T4",
         "units": "pmol/L",
-        "range": { "low": 10, "high": 22 }
+        "range": { "low": 10, "high": 22 },
+        "test_range": { "low": 2, "high": 60 }
       },
       {
         "test_code": "FT3",
         "test_name": "Free T3",
         "units": "pmol/L",
-        "range": { "low": 3.1, "high": 6.8 }
+        "range": { "low": 3.1, "high": 6.8 },
+        "test_range": { "low": 1, "high": 30 }
       }
     ]
   }

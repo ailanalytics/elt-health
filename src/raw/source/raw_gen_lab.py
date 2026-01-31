@@ -12,7 +12,7 @@ from utils import *
 # Define Variables
 # --------------------------------------------------
 
-LAB_TEST_PATH = "src/raw/lab_tests.json"
+LAB_TEST_PATH = "src/raw/source/lab_tests.json"
 
 with open(LAB_TEST_PATH, "r", encoding="utf-8") as f:
     lab_tests = json.load(f)
@@ -26,21 +26,16 @@ def generate_lab_result_event(ts, gender, patient_id, department):
     data_with_values = copy.deepcopy(tests)
 
     for test in data_with_values:
-        test_range = test["range"]
-
-        if gender in test_range:
-            low = test_range[gender]["low"]
-            high = test_range[gender]["high"]
-        else:
-            low = test_range.get("low")
-            high = test_range.get("high")
-
+        test_range = test["test_range"]
+        low = test_range.get("low")
+        high = test_range.get("high")
         test["value"] = random_value(low, high)
 
     return {
         "event_type": "lab_result",
         "patient": {
-            "patient_id": patient_id
+            "patient_id": patient_id,
+            "gender": gender
         },
         "lab_results": {
             "result_set": data_name,

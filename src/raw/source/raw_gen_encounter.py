@@ -9,11 +9,12 @@ import random
 # Define Variables
 # --------------------------------------------------
 
-def generate_encounter_event(ts, patient_id, encounter_type, department):
+def generate_encounter_event(ts, patient_id, gender, encounter_type, department):
     return {
         "event_type": encounter_type,
         "patient": {
             "patient_id": patient_id,
+            "gender": gender
         },
         "encounter": {
             "department": department,
