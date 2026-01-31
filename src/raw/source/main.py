@@ -2,8 +2,8 @@
 Entry point for raw data generator
 Writes json to local dev data folder
 """
-import raw_gen_admissions as adm
-from raw_gen_patients import PatientRegistry, Patient
+import raw.source.admission as adm
+from raw.source.patients import PatientRegistry, Patient
 
 # --------------------------------------------------
 # Define Variables

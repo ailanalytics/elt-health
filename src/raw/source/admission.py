@@ -8,9 +8,9 @@ import random
 from utils import *
 from datetime import timedelta
 from utils import *
-import raw_gen_encounter as enc
-import raw_gen_lab as lab
-from raw_gen_patients import PatientRegistry
+import raw.source.encounter as enc
+import raw.source.lab as lab
+from raw.source.patients import PatientRegistry
 
 DEP = [
     {"dep": "icu", "range": {"min": 1, "max": 20}},
@@ -59,8 +59,6 @@ def generate_admissions():
 
         while created_admissions < admissions_per_day:
 
-            # Patient details
-
             patient = registry.get_random_admittable(date)
 
             if patient:
@@ -69,7 +67,6 @@ def generate_admissions():
                 dep_name = department["dep"]
 
                 # Generate event timestamps
-
                 ts = create_timestamp(patient.patient_id, date)
 
                 stay_min = department["range"]["min"]
@@ -83,7 +80,6 @@ def generate_admissions():
                 lab_ts = ts + timedelta(hours=random.randint(1, 4))
 
                 # Generate events
-
                 encounter_admit = enc.generate_encounter_event(ts.isoformat(), patient.patient_id, patient.gender, "admission", dep_name)
                 encounter_discharge = enc.generate_encounter_event(ts_discharge.isoformat(), patient.patient_id, patient.gender, "discharge", dep_name)
                 lab_result = lab.generate_lab_result_event(lab_ts.isoformat(), patient.gender, patient.patient_id, dep_name)
