@@ -31,7 +31,7 @@ def generate_lab_result_event(ts, gender, patient_id, department):
         high = test_range.get("high")
         test["value"] = random_value(low, high)
 
-    return {
+    event = {
         "event_type": "lab_result",
         "patient": {
             "patient_id": patient_id,
@@ -46,6 +46,7 @@ def generate_lab_result_event(ts, gender, patient_id, department):
         "source_system": "lab",
     }
 
+    print(event)
+
 if __name__ == "__main__":
     results = generate_lab_result_event("male", 10000)
-    print(results)

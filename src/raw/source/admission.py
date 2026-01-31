@@ -5,22 +5,36 @@ Daily mean ~82
 
 import numpy as np
 import random
+import encounter as enc
+import lab
+from collections import deque
 from utils import *
 from datetime import timedelta
 from utils import *
-import raw.source.encounter as enc
-import raw.source.lab as lab
-from raw.source.patients import PatientRegistry
+from patients import PatientRegistry
+from department import Department, DEPARTMENT_CONFIG
 
-DEP = [
-    {"dep": "icu", "range": {"min": 1, "max": 20}},
-    {"dep": "surgery", "range": {"min": 1, "max": 24}},
-    {"dep": "a&e", "range": {"min": 1, "max": 24}},
-    {"dep": "ward1", "range": {"min": 1, "max": 180}},
-    {"dep": "ward2", "range": {"min": 1, "max": 180}},
-    {"dep": "ward3", "range": {"min": 1, "max": 180}},
-    {"dep": "ward4", "range": {"min": 1, "max": 180}},    
-]
+class WaitingList:
+    def __init__(self):
+        self.queue = deque()
+
+    def add(self, patient, request_date: date):
+        self.queue.append({
+            "patient": patient,
+            "request_date": request_date
+        })
+
+    def has_waiting(self) -> bool:
+        return len(self.queue) > 0
+
+    def peek(self):
+        return self.queue[0]
+
+    def pop(self):
+        return self.queue.popleft()
+
+    def __len__(self):
+        return len(self.queue)
 
 PRESSURE_MULTIPLIER = { # By month 1 = Jan
     1: 1.25,
@@ -37,7 +51,21 @@ PRESSURE_MULTIPLIER = { # By month 1 = Jan
     12: 1.20,
 }
 
-def admissions_for_day(date, baseline=82):
+def process_discharges(active_admissions, current_date):
+
+    remaining = []
+
+    for entry in active_admissions:
+        if entry["discharge_date"] <= current_date:
+            # discharge happens
+            entry["department"].discharge()
+        else:
+            remaining.append(entry)
+
+    return remaining
+
+def admissions_for_day(date, baseline=20):
+
     month = date.month
     multiplier = PRESSURE_MULTIPLIER[month]
 
@@ -47,49 +75,124 @@ def admissions_for_day(date, baseline=82):
 
 def generate_admissions():
 
-    registry = PatientRegistry(range(10000, 30000))
+    registry = PatientRegistry(range(10000, 10100))
+    waitinglist = WaitingList()
+    active_admissions = []
+
+    departments = {
+        d["name"]: Department(
+            name=d["name"],
+            beds=d["beds"],
+            stay_min=d["min"],
+            stay_max=d["max"]
+        )
+        for d in DEPARTMENT_CONFIG
+    }
 
     start = date(2024, 1, 28)
     end = date(2024, 1, 28)
 
-    for date in range(start, end):
+    current_date = start
 
-        admissions_per_day = admissions_for_day(date)
+    while current_date <= end:
+
+        active_admissions = process_discharges(active_admissions, current_date)
+
+        admissions_per_day = admissions_for_day(current_date)
         created_admissions = 0
 
-        while created_admissions < admissions_per_day:
+        while created_admissions <= admissions_per_day:
 
-            patient = registry.get_random_admittable(date)
-
-            if patient:
-
-                department = random.choice(DEP)
-                dep_name = department["dep"]
-
-                # Generate event timestamps
-                ts = create_timestamp(patient.patient_id, date)
-
-                stay_min = department["range"]["min"]
-                stay_max = department["range"]["max"]
-                
-                if dep_name == "surgery" or dep_name == "a&e":
-                    ts_discharge = ts + timedelta(hours=random.randint(stay_min, stay_max), minutes=random.randint(0, 60))
-                else:
-                    ts_discharge = ts + timedelta(days=random.randint(stay_min, stay_max), hours=random.randint(0, 24), minutes=random.randint(0, 60))
-
-                lab_ts = ts + timedelta(hours=random.randint(1, 4))
-
-                # Generate events
-                encounter_admit = enc.generate_encounter_event(ts.isoformat(), patient.patient_id, patient.gender, "admission", dep_name)
-                encounter_discharge = enc.generate_encounter_event(ts_discharge.isoformat(), patient.patient_id, patient.gender, "discharge", dep_name)
-                lab_result = lab.generate_lab_result_event(lab_ts.isoformat(), patient.gender, patient.patient_id, dep_name)
-
-                patient.admission_date = date
-                patient.discharge_date = date_from_timestamp(ts_discharge)
-
-                created_admissions += 1
-
+            # Choose patient (backlog first)
+            if waitinglist.has_waiting():
+                entry = waitinglist.peek()
+                patient = entry["patient"]
+                request_date = entry["request_date"]
             else:
-                continue
+                patient = registry.get_random_admittable(current_date)
+                request_date = current_date
 
-            
+            if not patient:
+                break  # no eligible patients today
+
+            # Check capacity
+            dep_with_capacity = [
+                d for d in departments.values()
+                if d.has_capacity()
+            ]
+
+            if not dep_with_capacity:
+                # No beds → backlog
+                if not waitinglist.has_patient(patient):
+                    waitinglist.add(patient, current_date)
+                break  # stop trying today
+
+            # Admit patient
+            dep = random.choice(dep_with_capacity)
+            dep.admit()
+
+            active_admissions.append({
+                "patient": patient,
+                "department": dep,
+                "discharge_date": patient.discharge_date
+            })
+
+            admit_ts = create_timestamp(current_date)
+
+            los_days = dep.generate_length_of_stay()
+
+            discharge_time = random_time_between(8, 22)
+
+            discharge_date = admit_ts + timedelta(
+                days=los_days
+            )
+
+            discharge_ts = datetime.combine(
+                discharge_date.date(),
+                discharge_time,
+                tzinfo=admit_ts.tzinfo
+            )
+
+            lab_ts = admit_ts + timedelta(
+                hours=random.randint(0, 6),
+                minutes=random.randint(0, 59)
+            )
+
+            patient.admission_date = current_date
+            patient.discharge_date = date_from_timestamp(discharge_ts)
+
+            # Remove from waiting list if applicable
+            if waitinglist.has_waiting() and waitinglist.peek()["patient"] == patient:
+                waitinglist.pop()
+                patient.waiting_time = (current_date - request_date).days
+            else:
+                patient.waiting_time = 0
+
+            created_admissions += 1
+
+            # Generate events
+            enc.generate_encounter_event(
+                admit_ts.isoformat(), 
+                patient.patient_id, 
+                patient.gender, 
+                "admission", 
+                dep.name, 
+                patient.waiting_time
+            )
+
+            enc.generate_encounter_event(
+                discharge_ts.isoformat(), 
+                patient.patient_id, 
+                patient.gender, 
+                "discharge", 
+                dep.name
+            )
+
+            lab.generate_lab_result_event(
+                lab_ts.isoformat(), 
+                patient.gender, 
+                patient.patient_id, 
+                dep.name
+            )
+
+        current_date += timedelta(days=1)

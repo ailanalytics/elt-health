@@ -8,6 +8,7 @@ class Patient:
         self.gender = random.choice(["male", "female"])
         self.admission_date: date | None = None
         self.discharge_date: date | None = None
+        self.waiting_time: int = 0
 
     def can_admit(self, admit_date: date) -> bool:
         # Never admitted before

@@ -3,14 +3,13 @@ Raw Data Generator
 Writes json to local dev data folder
 """
 
-import random
-
 # --------------------------------------------------
 # Define Variables
 # --------------------------------------------------
 
-def generate_encounter_event(ts, patient_id, gender, encounter_type, department):
-    return {
+def generate_encounter_event(ts, patient_id, gender, encounter_type, department, wait_time=0):
+
+    event = {
         "event_type": encounter_type,
         "patient": {
             "patient_id": patient_id,
@@ -18,7 +17,10 @@ def generate_encounter_event(ts, patient_id, gender, encounter_type, department)
         },
         "encounter": {
             "department": department,
+            "waiting_time": wait_time
         },
         "event_ts": ts,
         "source_system": "ehr",
     }
+
+    print(event)
