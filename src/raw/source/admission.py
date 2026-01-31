@@ -24,7 +24,7 @@ class WaitingList:
             "patient": patient,
             "request_date": request_date
         })
-        print(len(self.queue))
+        # print(len(self.queue))
 
     def has_waiting(self) -> bool:
         return len(self.queue) > 0
@@ -38,7 +38,7 @@ class WaitingList:
     def peek(self):
         return self.queue[0]
 
-    def pop(self):
+    def pop_patient(self):
         return self.queue.popleft()
 
     def __len__(self):
@@ -55,7 +55,7 @@ def process_discharges(active_admissions, current_date):
             entry["department"].discharge()
         else:
             remaining.append(entry)
-
+    # print(len(remaining))
     return remaining
 
 def admissions_for_day(date, baseline=DAILY_ADMISSION_BASELINE):
@@ -102,6 +102,7 @@ def generate_admissions():
                 entry = waitinglist.peek()
                 patient = entry["patient"]
                 request_date = entry["request_date"]
+                print(current_date, request_date)
             else:
                 patient = registry.get_random_admittable(current_date)
                 request_date = current_date
@@ -127,12 +128,6 @@ def generate_admissions():
             dep = random.choice(dep_with_capacity)
             dep.admit()
 
-            active_admissions.append({
-                "patient": patient,
-                "department": dep,
-                "discharge_date": patient.discharge_date
-            })
-
             admit_ts = create_timestamp(current_date)
 
             los_days = dep.generate_length_of_stay()
@@ -157,16 +152,22 @@ def generate_admissions():
             patient.admission_date = current_date
             patient.discharge_date = date_from_timestamp(discharge_ts)
 
+            active_admissions.append({
+                "patient": patient,
+                "department": dep,
+                "discharge_date": patient.discharge_date
+            })
+
             # Remove from waiting list if applicable
             if waitinglist.has_waiting() and waitinglist.peek()["patient"] == patient:
-                waitinglist.pop()
+                waitinglist.pop_patient()
                 patient.waiting_time = (current_date - request_date).days
             else:
                 patient.waiting_time = 0
 
             created_admissions += 1
 
-            print(current_date)
+            # print(current_date)
 
             # Generate events
             enc.generate_encounter_event(

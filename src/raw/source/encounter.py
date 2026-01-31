@@ -22,5 +22,5 @@ def generate_encounter_event(ts, patient_id, gender, encounter_type, department,
         "event_ts": ts,
         "source_system": "ehr",
     }
-
-    # print(event)
+    # if event["encounter"]["waiting_time"] > 0:  
+    #     print(event["encounter"]["waiting_time"])

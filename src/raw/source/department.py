@@ -39,14 +39,13 @@ class Department:
 
     def generate_length_of_stay(self) -> int:
         r = random.random()
-        # 90% normal patients
         if r <= 0.9:
             days = random.randint(self.stay_min, self.stay_max)
-        # 8% long stays
-        elif r > 0.9 and r < 0.99:
+        elif r < 0.98:
             days = random.randint(15, 30)
-        # 2% bed blockers
+            # print("long_stay")
         else:
             days = random.randint(31, 90)
+            # print("bed_block")
 
         return days

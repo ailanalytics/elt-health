@@ -15,11 +15,11 @@ PRESSURE_MULTIPLIER = { # By month 1 = Jan
     12: 1.20,
 }
 
-DAILY_ADMISSION_BASELINE = 1
+DAILY_ADMISSION_BASELINE = 20
 
 PATIENT_REGISTRY_MAX = 16000
 
-DEPARTMENT_MAX_STAY = 1
+DEPARTMENT_MAX_STAY = 30
 DEPARTMENT_CONFIG = [
     {"name": "ward1",   "beds": 20, "min": 1, "max": DEPARTMENT_MAX_STAY},
     {"name": "ward2",   "beds": 20, "min": 1, "max": DEPARTMENT_MAX_STAY},
