@@ -67,6 +67,35 @@ def admissions_for_day(date: date, baseline: int) -> int:
     return np.random.poisson(mean)
 
 # --------------------------------------------------
+# Department Snapshot
+# --------------------------------------------------
+
+def department_snapshot(ts: datetime, departments: dict, phase: str):
+
+    """
+    Generates department snapshot
+    Writes to S3
+    
+    :param ts: Snapshot timestamp
+    :type ts: datetime
+    :param departments: Dict of all departments
+    :type departments: dict
+    :param phase: Start Of Day/End Of Day
+    :type phase: str
+    """
+
+    snapshot = {
+        "event_type": "dep_snapshot",
+        "departments": {
+            name: dep.to_dict()
+            for name, dep in departments.items()
+        },
+        "phase": phase,
+        "event_ts": ts,
+        "source_system": "department",
+    }
+
+# --------------------------------------------------
 # Admission/Discharge/Waiting List Coordinator
 # --------------------------------------------------
 
@@ -104,7 +133,9 @@ def generate_admissions():
     while current_date <= end:
 
         current_date_ts = create_timestamp(current_date)
-        waitinglist.waiting_list_snapshot(current_date_ts, "SOD")
+        sod_ts = current_date_ts.replace(hour=0, minute=0, second=1)
+        waitinglist.waiting_list_snapshot(sod_ts.isoformat(), "SOD")
+        department_snapshot(sod_ts.isoformat(), departments, "SOD")
 
         active_admissions = process_discharges(active_admissions, current_date)
         admissions_per_day = admissions_for_day(current_date, DAILY_ADMISSION_BASELINE)
@@ -186,5 +217,7 @@ def generate_admissions():
                 dep.name
             )
 
-        waitinglist.waiting_list_snapshot(current_date_ts, "EOD")
+        eod_ts = current_date_ts.replace(hour=23, minute=59, second=59)
+        waitinglist.waiting_list_snapshot(eod_ts.isoformat(), "EOD")
+        department_snapshot(eod_ts.isoformat(), departments, "EOD")
         current_date += timedelta(days=1)

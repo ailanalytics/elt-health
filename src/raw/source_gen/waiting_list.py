@@ -98,10 +98,20 @@ class WaitingList:
     
     def waiting_list_snapshot(self, ts: datetime, phase: str):
 
+        """
+        Generates snapshot of waiting list
+        
+        :param self: References class
+        :param ts: Snapshot timestamp
+        :type ts: Timestamp
+        :param phase: Start Of Day/End Of Day
+        :type phase: str
+        """
+
         snapshot = {
-        "event_type": "wait_snapshot",
-        "waiting_count": self.__len__,
-        "phase": phase,
-        "event_ts": ts,
-        "source_system": "waiting_list",
+            "event_type": "wait_snapshot",
+            "waiting_count": self.__len__,
+            "phase": phase,
+            "event_ts": ts,
+            "source_system": "waiting_list",
         }

@@ -54,7 +54,7 @@ class Department:
         :rtype: bool
         """
 
-        return self.beds_occupied <= self.beds_total
+        return self.beds_occupied < self.beds_total
 
     def admit(self):
 
@@ -99,3 +99,20 @@ class Department:
             days = random.randint(31, 90)
 
         return days
+    
+    def to_dict(self) -> dict:
+
+        """
+        Creates dict for department snapshot
+        
+        :param self: References class
+        :return: Department dict
+        :rtype: dict
+        """
+
+        return {
+            "name": self.name,
+            "beds_total": self.beds_total,
+            "beds_occupied": self.beds_occupied,
+            "beds_available": self.beds_total - self.beds_occupied
+        }
