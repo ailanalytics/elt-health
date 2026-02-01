@@ -1,6 +1,5 @@
 """
-Entry point for raw data generator
-Writes json to local dev data folder
+Entry point for source data generator
 """
 import admission as adm
 

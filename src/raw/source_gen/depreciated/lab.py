@@ -1,6 +1,6 @@
 """
-Raw Lab Data Generator
-Writes json to local dev data folder
+Lab Test Generator
+Uses lab_tests.json to select test per admission
 """
 
 import json
@@ -10,13 +10,22 @@ from utils import *
 from constants import LAB_TEST_PATH
 
 # --------------------------------------------------
-# Define Variables
+# Lab Generator
 # --------------------------------------------------
 
 with open(LAB_TEST_PATH, "r", encoding="utf-8") as f:
     lab_tests = json.load(f)
 
 def generate_lab_result_event(ts, gender, patient_id, department):
+
+    """
+    Generate lab test per admission, append to S3
+    
+    :param ts: Event timestamp
+    :param gender: Patient gender
+    :param patient_id: Patient Id
+    :param department: Requesting department
+    """
 
     data = lab_tests["data"]
 
@@ -28,7 +37,7 @@ def generate_lab_result_event(ts, gender, patient_id, department):
         test_range = test["test_range"]
         low = test_range.get("low")
         high = test_range.get("high")
-        test["value"] = random_value(low, high)
+        # test["value"] = random_value(low, high)
 
     event = {
         "event_type": "lab_result",
@@ -44,8 +53,6 @@ def generate_lab_result_event(ts, gender, patient_id, department):
         "event_ts": ts,
         "source_system": "lab",
     }
-
-    # print(event)
 
 if __name__ == "__main__":
     results = generate_lab_result_event("male", 10000)
