@@ -28,12 +28,12 @@ def write_to_bucket(payload: dict):
     payload["ingestion_ts"] = ingestion_ts
 
     key = (
-        f"{event_type}/event_date={event_date}/{event_type}_{event_ts}_{uuid.uuid4().hex}.json"
+        f"{event_type}/event_date={event_date}/{event_type}_{uuid.uuid4().hex}.json"
     )
 
-    # client.put_object(
-    #     Bucket=s3_bucket,
-    #     Key=key,
-    #     Body=json.dumps(payload).encode("utf-8"),
-    #     ContentType="application/json"
-    # )
+    client.put_object(
+        Bucket=s3_bucket,
+        Key=key,
+        Body=json.dumps(payload).encode("utf-8"),
+        ContentType="application/json"
+    )
