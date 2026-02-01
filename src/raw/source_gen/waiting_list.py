@@ -5,6 +5,7 @@ FIFO
 
 from collections import deque
 from datetime import date, datetime
+from src.raw.ingestion.s3_write import write_to_bucket
 
 # --------------------------------------------------
 # Waiting List
@@ -115,3 +116,5 @@ class WaitingList:
             "event_ts": ts,
             "source_system": "waiting_list",
         }
+
+        write_to_bucket(snapshot)

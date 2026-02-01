@@ -4,7 +4,7 @@ Patient registry Class
 
 import random
 from datetime import date
-from patients import Patient
+from src.raw.source_gen.patients import Patient
 
 # --------------------------------------------------
 # Patient Registry Class

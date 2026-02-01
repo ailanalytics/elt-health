@@ -1,7 +1,9 @@
 """
 Encounter Generator
-Meta data and encounter data for S3
+Encounter data for S3
 """
+
+from src.raw.ingestion.s3_write import write_to_bucket
 
 # --------------------------------------------------
 # Generate Encounters
@@ -50,3 +52,5 @@ def generate_encounter_event(
         "event_ts": ts,
         "source_system": "ehr",
     }
+
+    write_to_bucket(event)
