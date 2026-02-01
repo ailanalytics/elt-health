@@ -1,5 +1,7 @@
 """
 Entry point for source data generator
+Generates encounter events for admissions and discharges
+Captures operational data for downstream analytics
 """
 import admission as adm
 

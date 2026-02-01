@@ -10,7 +10,7 @@ from waiting_list import WaitingList
 from utils import *
 from datetime import timedelta
 from utils import *
-from patients import PatientRegistry
+from patient_registry import PatientRegistry
 from constants import PRESSURE_MULTIPLIER, DAILY_ADMISSION_BASELINE, PATIENT_REGISTRY_MAX, DEPARTMENT_CONFIG
 
 # --------------------------------------------------
@@ -75,6 +75,7 @@ def generate_admissions():
     """
     Coordinate admissions, discharges, waiting list
     Creates departments from DEPARTMENT_CONFIG constant
+    Creates daily snapshot of number of patients on waiting list
     Daily discharges prioritised, followed by patients in waiting list
     Selects each day in range, creates number of admissions for the day
     Creates timestamp for admission and discharge json
@@ -101,6 +102,9 @@ def generate_admissions():
     current_date = start
 
     while current_date <= end:
+
+        current_date_ts = create_timestamp(current_date)
+        waitinglist.waiting_list_snapshot(current_date_ts, "SOD")
 
         active_admissions = process_discharges(active_admissions, current_date)
         admissions_per_day = admissions_for_day(current_date, DAILY_ADMISSION_BASELINE)
@@ -182,4 +186,5 @@ def generate_admissions():
                 dep.name
             )
 
+        waitinglist.waiting_list_snapshot(current_date_ts, "EOD")
         current_date += timedelta(days=1)

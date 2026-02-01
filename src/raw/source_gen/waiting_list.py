@@ -4,13 +4,14 @@ FIFO
 """
 
 from collections import deque
-from datetime import date
+from datetime import date, datetime
 
 # --------------------------------------------------
 # Waiting List
 # --------------------------------------------------
 
 class WaitingList:
+
     def __init__(self):
 
         """
@@ -94,3 +95,13 @@ class WaitingList:
         """
         
         return len(self.queue)
+    
+    def waiting_list_snapshot(self, ts: datetime, phase: str):
+
+        snapshot = {
+        "event_type": "wait_snapshot",
+        "waiting_count": self.__len__,
+        "phase": phase,
+        "event_ts": ts,
+        "source_system": "waiting_list",
+        }

@@ -13,8 +13,8 @@ def generate_encounter_event(
         gender: str, 
         encounter_type: str, 
         department: str, 
-        waiting_list: bool, 
-        wait_time: int = 0
+        waiting_list: bool=False, 
+        wait_time: int=0
         ):
 
     """
