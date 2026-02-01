@@ -1,5 +1,5 @@
 """
-Coordinates admissions, discharges, waiting list
+Coordinates admissions, discharges, waiting list, snapshots
 """
 
 import numpy as np
@@ -35,7 +35,6 @@ def process_discharges(active_admissions: list, current_date: date) -> list:
         discharge_date = entry["discharge_date"]
 
         if discharge_date is not None and discharge_date <= current_date:
-            # discharge happens
             entry["department"].discharge()
         else:
             remaining.append(entry)
@@ -70,7 +69,7 @@ def admissions_for_day(date: date, baseline: int) -> int:
 # Department Snapshot
 # --------------------------------------------------
 
-def department_snapshot(ts: datetime, departments: dict, phase: str):
+def department_snapshot(ts: str, departments: dict, phase: str):
 
     """
     Generates department snapshot
@@ -98,6 +97,30 @@ def department_snapshot(ts: datetime, departments: dict, phase: str):
     write_to_bucket(snapshot)
 
 # --------------------------------------------------
+# Snapshots - Wait List/Departments
+# --------------------------------------------------
+
+def create_snapshots(ts: datetime, phase: str, waitinglist: WaitingList, departments: dict):
+
+    """
+    Helper function to aggregate snapshot creation
+    
+    :param ts: Snapshot timestamp
+    :type ts: datetime
+    :param phase: Start Of Day/End Of Day
+    :type phase: str
+    :param waitinglist: Waiting list class
+    :type waitinglist: WaitingList
+    :param departments: Department data
+    :type departments: dict
+    """
+
+    ts_string = str(ts.isoformat())
+    waitinglist.waiting_list_snapshot(ts_string, phase)
+    department_snapshot(ts_string, departments, phase)
+
+
+# --------------------------------------------------
 # Admission/Discharge/Waiting List Coordinator
 # --------------------------------------------------
 
@@ -117,6 +140,7 @@ def generate_admissions():
     registry = PatientRegistry(range(10000, PATIENT_REGISTRY_MAX))
     waitinglist = WaitingList()
     active_admissions = []
+    wait_times = []
 
     departments = {
         d["name"]: Department(
@@ -129,32 +153,25 @@ def generate_admissions():
     }
 
     start = date(2025, 1, 28)
-    end = date(2026, 1, 28)
+    end = date(2027, 1, 28)
     current_date = start
 
     while current_date <= end:
 
         current_date_ts = create_timestamp(current_date)
         sod_ts = current_date_ts.replace(hour=0, minute=0, second=1)
-        waitinglist.waiting_list_snapshot(str(sod_ts.isoformat()), "SOD")
-        department_snapshot(str(sod_ts.isoformat()), departments, "SOD")
+        create_snapshots(sod_ts, "SOD", waitinglist, departments)
 
-        active_admissions = process_discharges(active_admissions, current_date)
+        if current_date.weekday() < 5: #M-F only
+            active_admissions = process_discharges(active_admissions, current_date)
+
         admissions_per_day = admissions_for_day(current_date, DAILY_ADMISSION_BASELINE)
+
         created_admissions = 0
 
         while created_admissions < admissions_per_day:
 
-            if waitinglist.has_waiting():
-                entry = waitinglist.peek()
-                patient = entry["patient"]
-                request_date = entry["request_date"]
-            else:
-                patient = registry.get_random_admittable(current_date)
-                request_date = current_date
-
-            if not patient:
-                break 
+            new_patient = registry.get_random_admittable(current_date)
 
             dep_with_capacity = [
                 d for d in departments.values()
@@ -162,10 +179,23 @@ def generate_admissions():
             ]
 
             if not dep_with_capacity:
-                if not waitinglist.has_patient(patient):
-                    waitinglist.add(patient, current_date)
-                    patient.waiting_list = True
-                break
+                if not waitinglist.has_patient(new_patient):
+                    waitinglist.add(new_patient, current_date)
+                    new_patient.waiting_list = True
+                created_admissions += 1
+                continue
+
+            if waitinglist.has_waiting():
+                entry = waitinglist.peek()
+                patient = entry["patient"]
+                request_date = entry["request_date"]
+                waitinglist.pop_patient()
+                patient.waiting_time = (current_date - request_date).days
+                wait_times.append(patient.waiting_time)
+            else:
+                patient = new_patient
+                request_date = current_date
+                patient.waiting_time = 0
 
             dep = random.choice(dep_with_capacity)
             dep.admit()
@@ -193,12 +223,6 @@ def generate_admissions():
                 "discharge_date": patient.discharge_date
             })
 
-            if waitinglist.has_waiting() and waitinglist.peek()["patient"] == patient:
-                waitinglist.pop_patient()
-                patient.waiting_time = (current_date - request_date).days
-            else:
-                patient.waiting_time = 0
-
             created_admissions += 1
 
             enc.generate_encounter_event(
@@ -220,6 +244,7 @@ def generate_admissions():
             )
 
         eod_ts = current_date_ts.replace(hour=23, minute=59, second=59)
-        waitinglist.waiting_list_snapshot(str(eod_ts.isoformat()), "EOD")
-        department_snapshot(str(eod_ts.isoformat()), departments, "EOD")
+        create_snapshots(eod_ts, "EOD", waitinglist, departments)
         current_date += timedelta(days=1)
+
+    validate_queue_dynamics(wait_times)

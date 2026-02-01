@@ -21,14 +21,14 @@ def write_to_bucket(payload: dict):
     :type payload: dict
     """
 
-    ingestion_ts = datetime.now(timezone.utc)
-    event_ts = datetime.fromisoformat(payload["event_ts"])
-    event_date = date_from_timestamp(event_ts)
+    ingestion_ts = str(datetime.now(timezone.utc))
+    event_ts = str(datetime.fromisoformat(payload["event_ts"]))
+    event_date = str(date_from_timestamp(event_ts))
     event_type = payload["event_type"]
     payload["ingestion_ts"] = ingestion_ts
 
     key = (
-        f"{event_type}/event_date={event_date}/{event_type}_{event_ts.strftime('%Y%m%dT%H%M%SZ')}_{uuid.uuid4().hex}.json"
+        f"{event_type}/event_date={event_date}/{event_type}_{event_ts}_{uuid.uuid4().hex}.json"
     )
 
     # client.put_object(

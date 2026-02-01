@@ -86,18 +86,8 @@ class WaitingList:
         """
         
         return self.queue.popleft()
-
-    def __len__(self):
-
-        """
-        Returns length of queue
-        
-        :param self: References class
-        """
-        
-        return len(self.queue)
     
-    def waiting_list_snapshot(self, ts: datetime, phase: str):
+    def waiting_list_snapshot(self, ts: str, phase: str):
 
         """
         Generates snapshot of waiting list
@@ -111,7 +101,7 @@ class WaitingList:
 
         snapshot = {
             "event_type": "wait_snapshot",
-            "waiting_count": self.__len__,
+            "waiting_count": len(self.queue),
             "phase": phase,
             "event_ts": ts,
             "source_system": "waiting_list",
