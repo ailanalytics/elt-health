@@ -136,8 +136,8 @@ def generate_admissions():
 
         current_date_ts = create_timestamp(current_date)
         sod_ts = current_date_ts.replace(hour=0, minute=0, second=1)
-        waitinglist.waiting_list_snapshot(sod_ts.isoformat(), "SOD")
-        department_snapshot(sod_ts.isoformat(), departments, "SOD")
+        waitinglist.waiting_list_snapshot(str(sod_ts.isoformat()), "SOD")
+        department_snapshot(str(sod_ts.isoformat()), departments, "SOD")
 
         active_admissions = process_discharges(active_admissions, current_date)
         admissions_per_day = admissions_for_day(current_date, DAILY_ADMISSION_BASELINE)
@@ -220,6 +220,6 @@ def generate_admissions():
             )
 
         eod_ts = current_date_ts.replace(hour=23, minute=59, second=59)
-        waitinglist.waiting_list_snapshot(eod_ts.isoformat(), "EOD")
-        department_snapshot(eod_ts.isoformat(), departments, "EOD")
+        waitinglist.waiting_list_snapshot(str(eod_ts.isoformat()), "EOD")
+        department_snapshot(str(eod_ts.isoformat()), departments, "EOD")
         current_date += timedelta(days=1)

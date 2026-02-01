@@ -7,13 +7,6 @@ import uuid
 from datetime import datetime, timezone
 from src.raw.source_gen.utils import date_from_timestamp
 from src.raw.ingestion.s3config import client, s3_bucket
-from dotenv import load_dotenv
-
-# --------------------------------------------------
-# Load environment variables
-# --------------------------------------------------
-
-load_dotenv()
 
 # --------------------------------------------------
 # Write Encounter to S3
@@ -29,7 +22,7 @@ def write_to_bucket(payload: dict):
     """
 
     ingestion_ts = datetime.now(timezone.utc)
-    event_ts = payload["event_ts"]
+    event_ts = datetime.fromisoformat(payload["event_ts"])
     event_date = date_from_timestamp(event_ts)
     event_type = payload["event_type"]
     payload["ingestion_ts"] = ingestion_ts
@@ -38,9 +31,9 @@ def write_to_bucket(payload: dict):
         f"{event_type}/event_date={event_date}/{event_type}_{event_ts.strftime('%Y%m%dT%H%M%SZ')}_{uuid.uuid4().hex}.json"
     )
 
-    client.put_object(
-        Bucket=s3_bucket,
-        Key=key,
-        Body=json.dumps(payload).encode("utf-8"),
-        ContentType="application/json"
-    )
+    # client.put_object(
+    #     Bucket=s3_bucket,
+    #     Key=key,
+    #     Body=json.dumps(payload).encode("utf-8"),
+    #     ContentType="application/json"
+    # )
