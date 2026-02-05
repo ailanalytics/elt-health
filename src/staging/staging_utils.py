@@ -1,11 +1,32 @@
 import re
-from pyarrow.fs import S3FileSystem, FileSelector
 import pyarrow as pa
-import pyarrow.compute as pac
+from pyarrow.fs import S3FileSystem, FileSelector
 from src.raw.ingestion.s3config import client
 from collections import defaultdict
-import json
 from datetime import datetime, timezone
+
+# --------------------------------------------------
+# Event Schema
+# --------------------------------------------------
+
+event_schema = pa.schema([
+    # Event
+    pa.field("event_type", pa.string(), nullable=False),
+
+    # Patient
+    pa.field("patient_id", pa.int64(), nullable=False),
+    pa.field("patient_gender", pa.string(), nullable=True),
+
+    # Encounter
+    pa.field("department_name", pa.string(), nullable=False),
+    pa.field("waiting_list", pa.bool_(), nullable=False),
+    pa.field("waiting_time", pa.int16(), nullable=False),
+
+    # Metadata
+    pa.field("event_ts", pa.timestamp("ms", tz="UTC"), nullable=False),
+    pa.field("ingestion_ts", pa.timestamp("ms", tz="UTC"), nullable=False),
+    pa.field("source_system", pa.string(), nullable=False),
+])
 
 # --------------------------------------------------
 # List Daily Prefixes
@@ -60,7 +81,20 @@ def group_prefixes_by_month(prefixes: list[str]) -> defaultdict[str: list[str]]:
 
     return grouped_prefix
 
+# --------------------------------------------------
+# Get Objects at S3 Prefix
+# --------------------------------------------------
+
 def get_objects_at_prefix(prefix: str) -> list[str]:
+
+    """
+    Returns list of objects at given prefix
+    
+    :param prefix: Prefix
+    :type prefix: str
+    :return: List of objects
+    :rtype: list[str]
+    """
 
     fs = S3FileSystem()
 
@@ -78,6 +112,9 @@ def get_objects_at_prefix(prefix: str) -> list[str]:
 
     return keys
 
+# --------------------------------------------------
+# Normalise Timestamps
+# --------------------------------------------------
 
 def normalize_timestamp(value: str) -> str:
 
