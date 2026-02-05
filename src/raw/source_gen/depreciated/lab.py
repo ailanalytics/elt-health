@@ -6,7 +6,7 @@ Uses lab_tests.json to select test per admission
 import json
 import copy
 import random
-from utils import *
+from src.raw.source_gen.source_gen_utils import *
 from constants import LAB_TEST_PATH
 
 # --------------------------------------------------

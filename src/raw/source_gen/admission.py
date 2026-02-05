@@ -9,7 +9,7 @@ import src.raw.source_gen.encounter as enc
 from src.raw.source_gen.department import Department
 from src.raw.source_gen.waiting_list import WaitingList
 from src.raw.ingestion.s3_write import write_to_bucket
-from src.raw.source_gen.utils import *
+from src.raw.source_gen.source_gen_utils import *
 from src.raw.source_gen.patient_registry import PatientRegistry
 from src.raw.source_gen.constants import PRESSURE_MULTIPLIER, DAILY_ADMISSION_BASELINE, PATIENT_REGISTRY_MAX, DEPARTMENT_CONFIG
 

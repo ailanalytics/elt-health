@@ -5,7 +5,7 @@ Writes generator data to S3 bucket
 import json
 import uuid
 from datetime import datetime, timezone
-from src.raw.source_gen.utils import date_from_timestamp
+from src.raw.source_gen.source_gen_utils import date_from_timestamp
 from src.raw.ingestion.s3config import client, s3_bucket
 
 # --------------------------------------------------
