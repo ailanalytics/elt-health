@@ -99,15 +99,33 @@ All source outputs are emitted as **individual JSON events**.
 
 - Immutable JSON objects
 - One event per file
-- Partitioned by event type and event date
+- Partitioned by event type and event date (daily)
+- Append only
 
 Example:
 
 ```
 /admission/event_date=2024-03-15/admission_<uuid>.json
-/discharge/event_date=2024-03-15/discharge<uuid>.json
+/discharge/event_date=2024-03-15/discharge_<uuid>.json
 /wait_snapshot/event_date=2024-03-15/wait_snapshot_<uuid>.json
 /dep_snapshot/event_date=2024-03-15/dep_snapshot_<uuid>.json
+```
+---
+
+## Staging Layer (S3)
+
+- Immutable Parquet files
+- Events grouped by month
+- Partitioned by event type and month (monthly)
+- Schema enforced at write time using PyArrow
+
+Example:
+
+```
+/admission/event_date=2024-03/admission.parquet
+/discharge/event_date=2024-03/discharge.parquet
+/wait_snapshot/event_date=2024-03/wait_snapshot.parquet
+/dep_snapshot/event_date=2024-03/dep_snapshot.parquet
 ```
 ---
 
@@ -202,16 +220,6 @@ The platform is designed around **columnar execution**:
 - Data quality checks (row counts, nulls, late events)
 - Power BI dashboards
 - Incremental warehouse loading
-
----
-
-## Why This Exists
-
-This project exists to demonstrate **healthcare data engineering and analytics principles**:
-
-- Where logic belongs
-- How systems evolve
-- How pressure and constraints change data behaviour
 
 ---
 
